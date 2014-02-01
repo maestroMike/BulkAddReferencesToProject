@@ -1,0 +1,31 @@
+﻿<#@ template hostspecific="true" language="C#" #>
+<#@ output extension=".txt" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.Linq" #>
+<#@ include file="$(SolutionDir)\_tt Templates\VisualStudioHelper.ttinclude" #>
+<#@ include file="$(SolutionDir)\_tt Templates\VisualStudioReferenceHelper.ttinclude" #>
+<#
+	IEnumerable<Project> projects = this.VisualStudioHelper.GetAllProjects();
+	var newReferenceProjectName = this.VisualStudioHelper.CurrentProject.Name;
+	var oldReferenceProjectName = "dev.Common.Types";
+
+	foreach (Project project in projects)
+	{
+		var projRefManager = new ProjectReferenceManager(project);
+		if (project.Name != newReferenceProjectName && projRefManager.HasReference(oldReferenceProjectName))
+		{
+			WriteLine(project.Name + " - Adding reference to " + newReferenceProjectName);
+			try 
+			{	  
+				// раскомментить эту строку если действительно надо добавлять референсы на проекты     
+				// projRefManager.AddReference(newReferenceProjectName);
+			}
+			catch ( Exception e )
+			{
+				WriteLine(e.Message);
+			}
+			WriteLine("+++ Reference to " + newReferenceProjectName + " added.");
+		}
+	}
+#>
