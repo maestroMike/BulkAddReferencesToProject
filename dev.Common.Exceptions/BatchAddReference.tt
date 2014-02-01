@@ -25,7 +25,7 @@
 			{	  
 				// раскомментить эту строку если действительно
 				// надо добавлять референсы на проекты     
-				projRefManager.AddProject(currentProject);
+				//projRefManager.AddProject(currentProject);
 				project.Save();
 				WriteLine("+++ Reference to " + newReferenceProjectName
 				 + " added.");
