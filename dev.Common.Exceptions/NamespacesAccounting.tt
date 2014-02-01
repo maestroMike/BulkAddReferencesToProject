@@ -1,0 +1,59 @@
+﻿<#@ template hostspecific="true" language="C#" #>
+<#@ output extension=".txt" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ include file="$(SolutionDir)\_tt Templates\VisualStudioHelper.ttinclude" #>
+<#@ include file="$(SolutionDir)\_tt Templates\VisualStudioReferenceHelper.ttinclude" #>
+<#
+	//Project project = this.VisualStudioHelper.CurrentProject;
+	
+	foreach (var project in VisualStudioHelper.GetAllProjects())
+	{
+		//WriteLine(project.Name);
+		var namespaces = Helper.GetNamespaces(VisualStudioHelper.GetAllProjectItems(project));
+		var groupedNamespaces = namespaces.GroupBy(x => x).Select(x => new{Namespace = x.Key, Count = x.Count()}).OrderByDescending(x => x.Count);
+		StringBuilder sb = new StringBuilder();
+		foreach (var ns in groupedNamespaces)
+		{
+			var text = ns.Count + "\t" + ns.Namespace;
+			sb.AppendLine(text);	 
+			WriteLine(text);
+		}
+
+		// раскомментить эту строку чтобы создались файлы About.txt
+		//Helper.AddAboutFile(project, sb.ToString());
+	}
+
+#>
+<#+ 
+public static class Helper{
+	public static ProjectItem AddAboutFile(Project project, string content)
+	{
+		var projPath = Path.GetDirectoryName( project.FullName);
+		var aboutPath = Path.Combine(projPath, "About.txt");
+		File.WriteAllText(aboutPath, content);
+		var item = project.ProjectItems.AddFromFile(aboutPath);
+		project.Save();
+		return item;
+	}
+
+	public static IEnumerable<string> GetNamespaces(IEnumerable<ProjectItem> projectItems)
+	{
+		var items = projectItems.Where(x => x.Name.Contains(".cs"));
+		foreach (var item in items)
+		{
+			if (item.FileCodeModel == null || item.FileCodeModel.CodeElements == null)
+				continue;
+
+			var elements = item.FileCodeModel.CodeElements;
+			foreach (CodeElement element in elements)
+			{
+				if(element.Kind == vsCMElement.vsCMElementNamespace)
+					yield return element.Name;
+			}
+		}
+	}
+}
+ #>
