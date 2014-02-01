@@ -1,31 +1,34 @@
-﻿<#@ template hostspecific="true" language="C#" #>
+﻿<#@ template hostspecific="true" language="C#" debug="True"#>
 <#@ output extension=".txt" #>
 <#@ assembly name="System.Core" #>
+<#@ assembly name="EnvDTE" #>
 <#@ import namespace="EnvDTE" #>
 <#@ import namespace="System.Linq" #>
 <#@ include file="$(SolutionDir)\_tt Templates\VisualStudioHelper.ttinclude" #>
 <#@ include file="$(SolutionDir)\_tt Templates\VisualStudioReferenceHelper.ttinclude" #>
 <#
 	IEnumerable<Project> projects = this.VisualStudioHelper.GetAllProjects();
-	var newReferenceProjectName = this.VisualStudioHelper.CurrentProject.Name;
+	var currentProject = this.VisualStudioHelper.CurrentProject;
+	var newReferenceProjectName = currentProject.Name;
 	var oldReferenceProjectName = "dev.Common.Types";
 
 	foreach (Project project in projects)
 	{
 		var projRefManager = new ProjectReferenceManager(project);
-		if (project.Name != newReferenceProjectName && projRefManager.HasReference(oldReferenceProjectName))
+		if (project.Name != newReferenceProjectName && projRefManager.HasReference(oldReferenceProjectName) && !projRefManager.HasReference(newReferenceProjectName))
 		{
 			WriteLine(project.Name + " - Adding reference to " + newReferenceProjectName);
 			try 
 			{	  
 				// раскомментить эту строку если действительно надо добавлять референсы на проекты     
-				// projRefManager.AddReference(newReferenceProjectName);
+				projRefManager.AddProject(currentProject);
+				WriteLine("+++ Reference to " + newReferenceProjectName + " added.");
 			}
 			catch ( Exception e )
 			{
-				WriteLine(e.Message);
+				WriteLine("--- " + e.Message + "\t" + e.StackTrace);
+				WriteLine("========================================================");
 			}
-			WriteLine("+++ Reference to " + newReferenceProjectName + " added.");
 		}
 	}
 #>

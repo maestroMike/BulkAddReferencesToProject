@@ -1,7 +1,5 @@
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="VsLangProj" #>
-
-
 <#+
 /// <summary>
 /// Wraps a Visual Studio Project to allow manipulation of its references
@@ -39,13 +37,36 @@ public class ProjectReferenceManager
 	/// </summary>
 	public void AddReference(string referenceString)
     {
+		if (this.VSProject == null || this.VSProject.References == null)
+		{
+			return;
+		}
 		this.VSProject.References.Add(referenceString);
+    }
+	/// <summary>
+	/// Adds a reference to the Project, if it's not referenced yet.
+	/// Can be used in the following ways:
+	/// 	AddReference("System.Data.Entity");
+	///		AddReference(@"C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\PublicAssemblies\VSLangProj.dll");
+	///		AddReference("System.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=B03F5F7F11D50A3A");
+	/// </summary>
+	public void AddProject(EnvDTE.Project project)
+    {
+		if (this.VSProject == null || this.VSProject.References == null)
+		{
+			return;
+		}
+		this.VSProject.References.AddProject(project);
     }
 	/// <summary>
 	/// Checks if the Project has a given reference
 	/// </summary>
 	public bool HasReference(string referenceString)
     {
+		if (this.VSProject == null || this.VSProject.References == null)
+		{
+			return false;
+		}
 		return this.VSProject.References.Find(referenceString) != null;
     }
 	/// <summary>

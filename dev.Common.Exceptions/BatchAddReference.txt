@@ -1,10 +1,3 @@
 ﻿
 
 
-
-D - Adding reference to dev.Common.Exceptions
-+++ Reference to dev.Common.Exceptions added.
-C - Adding reference to dev.Common.Exceptions
-+++ Reference to dev.Common.Exceptions added.
-A - Adding reference to dev.Common.Exceptions
-+++ Reference to dev.Common.Exceptions added.
